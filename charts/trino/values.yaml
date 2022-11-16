@@ -32,6 +32,7 @@ server:
     # Trino supports multiple authentication types: PASSWORD, CERTIFICATE, OAUTH2, JWT, KERBEROS
     # For more info: https://trino.io/docs/current/security/authentication-types.html
     authenticationType: ""
+    shutdownGracePeriodSecs: 120 #default value of shutdown.grace-period in trino
     query:
       maxMemory: "4GB"
       maxMemoryPerNode: "1GB"
