@@ -52,6 +52,10 @@ spec:
         - name: schemas-volume
           configMap:
             name: {{ template "trino.fullname" . }}-schemas-volume-worker
+        - name: shutdown-volume
+          configMap:
+            name: {{ template "trino.fullname" . }}-shutdown-volume-worker
+            defaultMode: 0777
         {{- range .Values.configMounts }}
         - name: {{ .name }}
           configMap:
@@ -82,7 +86,7 @@ spec:
       imagePullSecrets:
         {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       #trino-worker waits 2x grace-periods and then give 1x grace-period for pod shutdown. So, taking max of pod terminationGracePeriodSeconds and 3x grace-periods.
-      terminationGracePeriodSeconds: {{ max .Values.worker.terminationGracePeriodSeconds mul .Values.server.config.shutdownGracePeriodSecs 3 }}
+      terminationGracePeriodSeconds: {{ max .Values.worker.terminationGracePeriodSeconds (mul .Values.server.config.shutdownGracePeriodSecs 3) }}
       containers:
         - name: {{ .Chart.Name }}-worker
           image: {{ include "trino.image" . }}
@@ -100,6 +104,9 @@ spec:
               name: catalog-volume
             - mountPath: {{ .Values.kafka.mountPath }}
               name: schemas-volume
+            - mountPath: /usr/local/bin/shutdown-worker.sh
+              name: shutdown-volume
+              subPath: shutdown-worker.sh
             {{- range .Values.configMounts }}
             - name: {{ .name }}
               mountPath: {{ .path }}
@@ -152,7 +159,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: [ "/bin/sh","-c","{{ .Values.server.config.path }}/shutdown-worker.sh" ]
+                command: [ "/bin/sh","-c","shutdown-worker.sh" ]
       {{- if .Values.sidecarContainers.worker }}
         {{- toYaml .Values.sidecarContainers.worker | nindent 8 }}
       {{- end }}

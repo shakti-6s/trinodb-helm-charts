@@ -63,25 +63,6 @@ data:
     {{- .Values.server.workerExtraConfig | nindent 4 }}
     {{- end }}
 
-  shutdown-worker.sh: |
-    #!/usr/bin/env bash
-    
-    set -e
-    set -x
-    
-    SHUTDOWN_URL="http://localhost:{{ .Values.service.port }}/v1/info/state"
-    http_code=$(curl -v -X PUT -d '"SHUTTING_DOWN"' -H "Content-type: application/json" -H "X-Trino-User: trino-worker" $SHUTDOWN_URL --write-out '%{http_code}')
-    
-    if [ $http_code -ne 200 ]
-    then
-      exit 1
-    fi
-    
-    #trino-worker container waits for 2x grace-periods
-    #for details, refer https://trino.io/docs/current/admin/graceful-shutdown.html
-    sleep $((2*{{.Values.server.config.shutdownGracePeriodSecs}}))  
-    
-
 {{ if ne .Values.server.config.retryPolicy "NONE" }}
   exchange-manager.properties: |
     exchange-manager.name={{ .Values.server.exchangeManager.name }}
@@ -123,4 +104,37 @@ data:
   {{- range $key, $val := .Values.kafka.tableDescriptions }}
   {{ $key }}: {{ $val | quote }}
   {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "trino.fullname" . }}-shutdown-volume-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "trino.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+data:
+  shutdown-worker.sh: |
+    #!/usr/bin/env bash
+
+    set -euxo pipefail
+
+    SHUTDOWN_URL="http://localhost:{{ .Values.service.port }}/v1/info/state"
+    curl_opts=(
+      -v -X PUT -d '"SHUTTING_DOWN"'
+      -H 'Content-type: application/json'
+      -H 'X-Trino-User: trino-worker'
+      --write-out '%{http_code}'
+    )
+    http_code="$( curl "${curl_opts[@]}" "${SHUTDOWN_URL}" )"
+
+    if [ "${http_code}" != "200" ] ; then
+      echo "Failed to shut down trino worker, got http error: ${http_code}"
+      exit 1
+    else
+      # trino-worker container waits for 2x grace-periods
+      # See: https://trino.io/docs/current/admin/graceful-shutdown.html
+      sleep $(( 2*{{ .Values.server.config.shutdownGracePeriodSecs }} ))
+      exit 0
+    fi
 {{- end }}
