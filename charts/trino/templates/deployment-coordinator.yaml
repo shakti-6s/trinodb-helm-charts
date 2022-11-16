@@ -16,6 +16,9 @@ spec:
       component: coordinator
   template:
     metadata:
+      annotations:
+        checksum/configMap-catalog: {{ include (print $.Template.BasePath "/configmap-catalog.yaml") . | sha256sum }}
+        checksum/configMap-coordinator: {{ include (print $.Template.BasePath "/configmap-coordinator.yaml") . | sha256sum }}
       labels:
         app: {{ template "trino.name" . }}
         release: {{ .Release.Name }}
