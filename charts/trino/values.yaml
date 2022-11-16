@@ -41,8 +41,8 @@ server:
   exchangeManager:
     name: "filesystem"
     baseDir: "/tmp/trino-local-file-system-exchange-manager"
-  workerExtraConfig: ""
-  coordinatorExtraConfig: ""
+  workerExtraConfig: {}
+  coordinatorExtraConfig: {}
   autoscaling:
     enabled: false
     maxReplicas: 5

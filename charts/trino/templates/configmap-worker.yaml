@@ -50,7 +50,9 @@ data:
   {{- range $configValue := .Values.additionalConfigProperties }}
     {{ $configValue }}
   {{- end }}
-  {{ .Values.server.workerExtraConfig | indent 4 }}
+  {{- range $configValue := .Values.server.workerExtraConfigs }}
+    {{ $configValue }}
+  {{- end }}
 
 {{ if ne .Values.server.config.retryPolicy "NONE" }}
   exchange-manager.properties: |
