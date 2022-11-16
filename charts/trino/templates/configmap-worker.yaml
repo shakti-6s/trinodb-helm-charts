@@ -46,17 +46,20 @@ data:
     query.max-memory-per-node={{ .Values.server.config.query.maxMemoryPerNode }}
     memory.heap-headroom-per-node={{ .Values.server.config.memory.heapHeadroomPerNode }}
     discovery.uri=http://{{ template "trino.fullname" . }}:{{ .Values.service.port }}
+    retry-policy={{ .Values.server.config.retryPolicy }}
   {{- range $configValue := .Values.additionalConfigProperties }}
     {{ $configValue }}
   {{- end }}
   {{ .Values.server.workerExtraConfig | indent 4 }}
 
+{{ if ne .Values.server.config.retryPolicy "NONE" }}
   exchange-manager.properties: |
     exchange-manager.name={{ .Values.server.exchangeManager.name }}
     exchange.base-directory={{ .Values.server.exchangeManager.baseDir }}
   {{- range $configValue := .Values.additionalExchangeManagerProperties }}
     {{ $configValue }}
   {{- end }}
+{{- end }}
 
   log.properties: |
     io.trino={{ .Values.server.log.trino.level }}

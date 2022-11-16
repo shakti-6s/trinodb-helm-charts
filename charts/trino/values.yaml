@@ -37,6 +37,7 @@ server:
       maxMemoryPerNode: "1GB"
     memory:
       heapHeadroomPerNode: "1GB"
+    retryPolicy: "NONE"
   exchangeManager:
     name: "filesystem"
     baseDir: "/tmp/trino-local-file-system-exchange-manager"
