@@ -31,6 +31,10 @@ spec:
         - name: config-volume
           configMap:
             name: {{ template "trino.worker" . }}
+        - name: shutdown-volume
+          configMap:
+            name: {{ template "trino.worker" . }}-shutdown
+            defaultMode: 0777
         - name: catalog-volume
           configMap:
             name: {{ template "trino.catalog" . }}
@@ -49,6 +53,9 @@ spec:
           volumeMounts:
             - mountPath: {{ .Values.server.config.path }}
               name: config-volume
+            - mountPath: /usr/local/bin/shutdown-worker.sh
+              name: shutdown-volume
+              subPath: shutdown-worker.sh
             - mountPath: {{ .Values.server.config.path }}/catalog
               name: catalog-volume
           ports:
@@ -68,7 +75,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: [ "/bin/sh","-c","{{ .Values.server.config.path }}/shutdown-worker.sh" ]
+                command: [ "/bin/sh","-c","shutdown-worker.sh" ]
       terminationGracePeriodSeconds: {{ mul .Values.server.config.shutdownGracePeriodSecs 3 }} #trino-worker container waits 2x grace-periods, thus give 1x grace-periods extra for pod shutdown
       {{- with .Values.nodeSelector }}
       nodeSelector:
