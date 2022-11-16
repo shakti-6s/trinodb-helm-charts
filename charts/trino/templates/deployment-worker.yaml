@@ -65,6 +65,11 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "/bin/sh","-c","{{ .Values.server.config.path }}/shutdown-worker.sh" ]
+      terminationGracePeriodSeconds: {{ mul .Values.server.config.shutdownGracePeriodSecs 3 }} #trino-worker container waits 2x grace-periods, thus give 1x grace-periods extra for pod shutdown
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
