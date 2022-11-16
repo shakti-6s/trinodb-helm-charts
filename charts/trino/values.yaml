@@ -53,6 +53,7 @@ server:
     # types](https://trino.io/docs/current/security/authentication-types.html):
     # PASSWORD, CERTIFICATE, OAUTH2, JWT, KERBEROS.
     authenticationType: ""
+    shutdownGracePeriodSecs: 120 #default value of shutdown.grace-period
     query:
       maxMemory: "4GB"
     retryPolicy: "NONE"

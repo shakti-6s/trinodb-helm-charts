@@ -48,6 +48,7 @@ data:
   config.properties: |
     coordinator=false
     http-server.http.port={{ .Values.service.port }}
+    shutdown.grace-period={{ .Values.server.config.shutdownGracePeriodSecs }}s
     query.max-memory={{ .Values.server.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.worker.config.query.maxMemoryPerNode }}
     {{- if .Values.worker.config.memory.heapHeadroomPerNode }}
@@ -61,6 +62,25 @@ data:
     {{- if .Values.server.workerExtraConfig }}
     {{- .Values.server.workerExtraConfig | nindent 4 }}
     {{- end }}
+
+  shutdown-worker.sh: |
+    #!/usr/bin/env bash
+    
+    set -e
+    set -x
+    
+    SHUTDOWN_URL="http://localhost:{{ .Values.service.port }}/v1/info/state"
+    http_code=$(curl -v -X PUT -d '"SHUTTING_DOWN"' -H "Content-type: application/json" -H "X-Trino-User: trino-worker" $SHUTDOWN_URL --write-out '%{http_code}')
+    
+    if [ $http_code -ne 200 ]
+    then
+      exit 1
+    fi
+    
+    #trino-worker container waits for 2x grace-periods
+    #for details, refer https://trino.io/docs/current/admin/graceful-shutdown.html
+    sleep $((2*{{.Values.server.config.shutdownGracePeriodSecs}}))  
+    
 
 {{ if ne .Values.server.config.retryPolicy "NONE" }}
   exchange-manager.properties: |

@@ -52,6 +52,7 @@ data:
     node-scheduler.include-coordinator=true
     {{- end }}
     http-server.http.port={{ .Values.service.port }}
+    shutdown.grace-period={{ .Values.server.config.shutdownGracePeriodSecs }}s
     query.max-memory={{ .Values.server.config.query.maxMemory }}
     query.max-memory-per-node={{ .Values.coordinator.config.query.maxMemoryPerNode }}
     {{- if .Values.coordinator.config.memory.heapHeadroomPerNode }}
