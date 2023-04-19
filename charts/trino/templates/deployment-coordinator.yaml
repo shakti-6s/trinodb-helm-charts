@@ -47,6 +47,9 @@ spec:
           secret:
             secretName: trino-password-authentication
         {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{- tpl (toYaml .Values.extraVolumes) . | nindent 8 }}
+        {{- end }}
       {{- if .Values.initContainers.coordinator }}
       initContainers:
       {{-  tpl (toYaml .Values.initContainers.coordinator) . | nindent 6 }}
@@ -73,6 +76,9 @@ spec:
             - mountPath: {{ .Values.server.config.path }}/access-control
               name: access-control-volume
             {{- end }}{{- end }}
+            {{- if .Values.extraVolumeMounts }}
+            {{- tpl (toYaml .Values.extraVolumeMounts) . | nindent 12 }}
+            {{- end }}
             {{- range .Values.secretMounts }}
             - name: {{ .name }}
               mountPath: {{ .path }}
