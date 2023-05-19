@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
 spec:
   hosts:
-    - "{{ .Release.Name }}.hadoop.{{ .Values.server.node.environment }}.6si.com"
+    - "{{ .Release.Name }}.bigdata.{{ .Values.server.node.environment }}.6si.com"
   gateways:
     - istio-system/http-gateway
   http:
