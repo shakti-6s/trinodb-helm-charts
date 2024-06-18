@@ -54,6 +54,7 @@ data:
     memory.heap-headroom-per-node={{ .Values.worker.config.memory.heapHeadroomPerNode }}
     {{- end }}
     discovery.uri=http://{{ template "trino.fullname" . }}:{{ .Values.service.port }}
+    retry-policy={{ .Values.server.config.retryPolicy }}
     {{- range $configValue := .Values.additionalConfigProperties }}
     {{ $configValue }}
     {{- end }}
@@ -61,6 +62,7 @@ data:
     {{- .Values.server.workerExtraConfig | nindent 4 }}
     {{- end }}
 
+{{ if ne .Values.server.config.retryPolicy "NONE" }}
   exchange-manager.properties: |
     exchange-manager.name={{ .Values.server.exchangeManager.name }}
   {{ if eq .Values.server.exchangeManager.name "filesystem" }}
@@ -69,6 +71,7 @@ data:
   {{- range $configValue := .Values.additionalExchangeManagerProperties }}
     {{ $configValue }}
   {{- end }}
+{{- end }}
 
   log.properties: |
     io.trino={{ .Values.server.log.trino.level }}

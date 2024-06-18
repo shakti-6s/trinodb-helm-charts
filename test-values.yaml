@@ -9,6 +9,7 @@ server:
       keystore:
         path: /etc/trino/generated/tls.pem
     authenticationType: PASSWORD
+    retryPolicy: "NONE"
   coordinatorExtraConfig: |
     query.client.timeout=5m
     query.execution-policy=phased

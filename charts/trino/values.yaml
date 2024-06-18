@@ -55,6 +55,7 @@ server:
     authenticationType: ""
     query:
       maxMemory: "4GB"
+    retryPolicy: "NONE"
   exchangeManager:
     name: "filesystem"
     baseDir: "/tmp/trino-local-file-system-exchange-manager"

@@ -58,6 +58,7 @@ data:
     memory.heap-headroom-per-node={{ .Values.coordinator.config.memory.heapHeadroomPerNode }}
     {{- end }}
     discovery.uri=http://localhost:{{ .Values.service.port }}
+    retry-policy={{ .Values.server.config.retryPolicy }}
     {{- if .Values.server.config.authenticationType }}
     http-server.authentication.type={{ .Values.server.config.authenticationType }}
     {{- end }}
@@ -88,6 +89,7 @@ data:
     resource-groups.config-file={{ .Values.server.config.path }}/resource-groups/resource-groups.json
 {{- end }}
 
+{{- if ne .Values.server.config.retryPolicy "NONE" }}
   exchange-manager.properties: |
     exchange-manager.name={{ .Values.server.exchangeManager.name }}
   {{ if eq .Values.server.exchangeManager.name "filesystem" }}
@@ -96,6 +98,7 @@ data:
   {{- range $configValue := .Values.additionalExchangeManagerProperties }}
     {{ $configValue }}
   {{- end }}
+{{- end }}
 
   log.properties: |
     io.trino={{ .Values.server.log.trino.level }}

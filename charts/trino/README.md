@@ -51,6 +51,7 @@ Fast distributed SQL query engine for big data analytics that helps you explore 
 * `server.config.https.port` - int, default: `8443`
 * `server.config.https.keystore.path` - string, default: `""`
 * `server.config.authenticationType` - string, default: `""`  
+* `server.config.retryPolicy` - string, default: `"NONE"`
 
   Trino supports multiple [authentication types](https://trino.io/docs/current/security/authentication-types.html): PASSWORD, CERTIFICATE, OAUTH2, JWT, KERBEROS.
 * `server.config.query.maxMemory` - string, default: `"4GB"`
